@@ -1,0 +1,21 @@
+services:
+
+  db:
+    image: postgres
+    volumes:
+      - ./config/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql.sql
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "32770:5432"
+
+  app:
+    build: .
+    ports:
+      - 8080:8080
+    links:
+      - db
+    depends_on:
+      - db
+    restart: on-failure:10
