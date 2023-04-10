@@ -95,8 +95,8 @@ class CardSerializer:
             return False
 
         # Check if date not expired
-        if self.data["exp_date"].month < date.today().month and \
-            self.data["exp_date"].year < date.today().year:
+        if self.data["exp_date"].year <= date.today().year and \
+            self.data["exp_date"].month < date.today().month:
             print("fail expired exp_date")
             return False
 
