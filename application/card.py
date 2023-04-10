@@ -147,5 +147,6 @@ class AppCard:
         return repo_card.service_list()
 
     def detail_card(self, id_card: str) -> Card:
+        """Detail card by id_card"""
         repo_card = RepositoryCard(CardImpl(POSTGRES_DB))
         return repo_card.service_detail(id_card)
