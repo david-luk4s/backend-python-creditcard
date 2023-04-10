@@ -20,6 +20,8 @@ class AuthSerializer:
 
 
 class UserSerializer:
+    """Serializer for user"""
+
     username: str
     password: str
 
@@ -28,6 +30,7 @@ class UserSerializer:
         self.password = password
 
     def save(self) -> None:
+        """Save user serializer in database postgres"""
         from main import DB as POSTGRES_DB
 
         user = User(self.username, self.password)
