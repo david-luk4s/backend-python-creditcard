@@ -1,6 +1,13 @@
 # backend-python-creditcard
 Desafio para vaga de backend na MaisTodos
 
+### Conceitos utilizados
+-----------------
+  - Arquitetura Hexagonal/Port & Adapter;
+  - Design Pattern Injeção de Dependência & Repository;
+  - SOLID;
+  - Test Unitários;
+
 ### Pré-requisitos
 
 Instale [Docker Compose standalone](https://docs.docker.com/compose/install/other/) ou [Docker Compose plugin](https://docs.docker.com/compose/install/)
