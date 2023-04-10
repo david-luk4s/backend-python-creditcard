@@ -9,17 +9,12 @@ from creditcard import CreditCard
 from creditcard.exceptions import BrandNotFound
 
 from domain.entities.card import Card
-from domain.repos.card import RepositoryCard
-from adapters.infrastructure.postgresql.card import CardImpl
-
 from config.settings import SECRET_KEY
-from main import DB as POSTGRES_DB
 
-class AppCard:
+class CardSerializer:
     """Serializer for card."""
 
     data = any
-    card = Card
 
     def __init__(self, data: any = None) -> None:
         if data is not None and bool(data.decode()):
@@ -55,8 +50,8 @@ class AppCard:
 
         return True
 
-    def __set_exp_date_isoformat(self) -> None:
-        self.card.exp_date = self.card.exp_date.isoformat()
+    def __set_exp_date_isoformat(self, card: Card) -> None:
+        card.exp_date = card.exp_date.isoformat()
 
     def __format_cvv(self) -> bool:
         if self.data.get("cvv"):
@@ -67,8 +62,8 @@ class AppCard:
 
         return True
 
-    def __convert_id_card(self) -> None:
-        self.card.id_card = str(self.card.id_card)
+    def __convert_id_card(self, card: Card) -> None:
+        card.id_card = str(card.id_card)
 
     def __find_brand(self) -> None:
         try:
@@ -117,36 +112,22 @@ class AppCard:
 
         return True
 
-    def process_card(self) -> None:
+    def process_card(self) -> Card:
         """process card"""
 
         self.__find_brand()
 
         self.__crypto_card_number()
 
-        self.card = Card(
+        card = Card(
             exp_date=self.data["exp_date"],
             holder=self.data["holder"],
             number=self.data["number"],
             cvv=self.data.get("cvv"),
             brand=self.data["brand"])
 
-        self.__set_exp_date_isoformat()
+        self.__set_exp_date_isoformat(card)
 
-        self.__convert_id_card()
+        self.__convert_id_card(card)
 
-    def save(self) -> bool:
-        """Save card with Repository for Card"""
-        repo_card = RepositoryCard(CardImpl(POSTGRES_DB))
-        repo_card.service_save(self.card)
-        return True
-
-    def list_cards(self) -> list[Card]:
-        """Get all cards"""
-        repo_card = RepositoryCard(CardImpl(POSTGRES_DB))
-        return repo_card.service_list()
-
-    def detail_card(self, id_card: str) -> Card:
-        """Detail card by id_card"""
-        repo_card = RepositoryCard(CardImpl(POSTGRES_DB))
-        return repo_card.service_detail(id_card)
+        return card

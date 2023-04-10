@@ -1,11 +1,16 @@
 from jsonpickle import encode, decode
 
+from domain.repos.card import RepositoryCard
+
+from adapters.infrastructure.postgresql.card import CardImpl
 from adapters.interfaces.api.handle import API
 from adapters.infrastructure.jwt.user import BaseJWT
 
-from application.card import AppCard
+from application.card import CardSerializer
 from application.user import AuthSerializer
 from application.auth import BaseAuth
+
+from main import DB as POSTGRES_DB
 
 app = API()
 
@@ -18,35 +23,39 @@ def recovery_card(request: any, response: any, id_card: str) -> None:
         response.text = encode({"error": "not allowed method"})
         return
 
-    card = AppCard().detail_card(id_card)
-    if card is None:
+    repo_card = RepositoryCard(CardImpl(POSTGRES_DB))
+    detail_card = repo_card.service_detail(id_card)
+
+    if detail_card is None:
         response.text = encode({"message": "card not found"})
         response.status = "404 Not Found"
         return
 
-    response.text = encode(card, unpicklable=False)
+    response.text = encode(detail_card, unpicklable=False)
 
 
 @app.route("/api/v1/credit-card")
 def card(request: any, response: any) -> None:
     """This function ."""
     response.content_type = "application/json"
-    app_card = AppCard(request.body)
+    serializer = CardSerializer(request.body)
+    repo_card = RepositoryCard(CardImpl(POSTGRES_DB))
 
     if request.method == 'POST':
-        if not app_card.is_valid():
+        if not serializer.is_valid():
             response.text = encode({"error": "error data validation"})
             return
 
-        app_card.process_card()
-        app_card.save()
+        process_card = serializer.process_card()
 
-        response.text = encode(app_card.card, unpicklable=False)
+        repo_card.service_save(process_card)
+
+        response.text = encode(process_card, unpicklable=False)
         return
 
 
     elif request.method == 'GET':
-        response.text = encode(app_card.list_cards(), unpicklable=False)
+        response.text = encode(repo_card.service_list(), unpicklable=False)
         return
 
 @app.route("/api/v1/auth/token")
@@ -89,4 +98,4 @@ def verify_token(request: any, response: any) -> None:
 
     response.text = encode(bjwt, unpicklable=False)
     response.status = '202 OK'
-    return 
+    return
