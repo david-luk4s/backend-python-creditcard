@@ -1,5 +1,5 @@
 # backend-python-creditcard
-Desafio para vaga de backend na MaisTodos
+Desafio backend
 
 ### Conceitos utilizados
 -----------------
